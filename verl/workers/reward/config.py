@@ -22,7 +22,7 @@ from typing import Any, List
 @dataclass
 class RewardConfig:
     reward_type: str = "function"
-    compute_score: str = "math"
+    compute_score: str = "retrieve"
     
     # Define valid options as a class variable
     valid_compute_scores: List[str] = field(default_factory=lambda: ["math", "r1v", "retrieve"], repr=False)
