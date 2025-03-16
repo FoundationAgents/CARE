@@ -15,10 +15,19 @@
 Reward config
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from typing import Any, List
 
 
 @dataclass
 class RewardConfig:
     reward_type: str = "function"
     compute_score: str = "math"
+    
+    # Define valid options as a class variable
+    valid_compute_scores: List[str] = field(default_factory=lambda: ["math", "r1v", "retrieve"], repr=False)
+    
+    def __post_init__(self):
+        # Validate compute_score
+        if self.compute_score not in self.valid_compute_scores:
+            raise ValueError(f"compute_score must be one of {self.valid_compute_scores}, got {self.compute_score}")

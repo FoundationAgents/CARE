@@ -68,7 +68,7 @@ class TrainerConfig:
     experiment_name: str = "demo"
     logger: Tuple[str] = ("console", "wandb")
     nnodes: int = 1
-    n_gpus_per_node: int = 8
+    n_gpus_per_node: int = 4
     critic_warmup: int = 0
     val_freq: int = -1
     val_before_train: bool = True

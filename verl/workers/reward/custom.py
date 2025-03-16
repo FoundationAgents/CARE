@@ -17,7 +17,7 @@ import torch
 from transformers import PreTrainedTokenizer
 
 from ...protocol import DataProto
-from ...utils.reward_score import math_compute_score, r1v_compute_score
+from ...utils.reward_score import math_compute_score, r1v_compute_score, retrieve_compute_score
 
 
 class CustomRewardManager:
@@ -28,6 +28,8 @@ class CustomRewardManager:
             self.compute_score = math_compute_score
         elif compute_score == "r1v":
             self.compute_score = r1v_compute_score
+        elif compute_score == "retrieve":
+            self.compute_score = retrieve_compute_score
         else:
             raise NotImplementedError()
 
@@ -53,8 +55,15 @@ class CustomRewardManager:
             response_str = self.tokenizer.decode(valid_response_ids, skip_special_tokens=True)
 
             ground_truth = data_item.non_tensor_batch["ground_truth"]
-
-            score = self.compute_score(response_str, ground_truth)
+            
+            # Check if we're using retrieve compute score which needs context
+            if hasattr(self.compute_score, "__code__") and "context" in self.compute_score.__code__.co_varnames:
+                # Get context from non_tensor_batch if available
+                context = data_item.non_tensor_batch.get("context", "")
+                score = self.compute_score(response_str, ground_truth, context)
+            else:
+                score = self.compute_score(response_str, ground_truth)
+                
             reward_tensor[i, valid_response_length - 1] = score
 
             if already_print < self.num_examine:
