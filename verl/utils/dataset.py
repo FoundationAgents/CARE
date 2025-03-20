@@ -55,12 +55,14 @@ def process_image(image: Union[Dict[str, Any], ImageObject], max_pixels: int, mi
 
     if (image.width * image.height) > max_pixels:
         resize_factor = math.sqrt(max_pixels / (image.width * image.height))
-        width, height = int(image.width * resize_factor), int(image.height * resize_factor)
+        width, height = int(
+            image.width * resize_factor), int(image.height * resize_factor)
         image = image.resize((width, height))
 
     if (image.width * image.height) < min_pixels:
         resize_factor = math.sqrt(min_pixels / (image.width * image.height))
-        width, height = int(image.width * resize_factor), int(image.height * resize_factor)
+        width, height = int(
+            image.width * resize_factor), int(image.height * resize_factor)
         image = image.resize((width, height))
 
     if image.mode != "RGB":
@@ -105,9 +107,11 @@ class RLHFDataset(Dataset):
             data_split = "train"
 
         if os.path.isdir(data_path):
-            self.dataset = load_dataset("parquet", data_dir=data_path, split="train")
+            self.dataset = load_dataset(
+                "parquet", data_dir=data_path, split="train")
         elif os.path.isfile(data_path):
-            self.dataset = load_dataset("parquet", data_files=data_path, split="train")
+            self.dataset = load_dataset(
+                "parquet", data_files=data_path, split="train")
         else:  # remote dataset
             self.dataset = load_dataset(data_path, split=data_split)
 
@@ -118,18 +122,22 @@ class RLHFDataset(Dataset):
         row_dict: dict = self.dataset[index]
         messages = [{"role": "user", "content": row_dict[self.prompt_key]}]
         if self.system_prompt:
-            messages.insert(0, {"role": "system", "content": self.system_prompt})
+            messages.insert(
+                0, {"role": "system", "content": self.system_prompt})
 
-        prompt = self.tokenizer.apply_chat_template(messages, add_generation_prompt=True, tokenize=False)
+        prompt = self.tokenizer.apply_chat_template(
+            messages, add_generation_prompt=True, tokenize=False)
 
         if self.image_key in row_dict:
-            prompt = prompt.replace("<image>", "<|vision_start|><|image_pad|><|vision_end|>")
+            prompt = prompt.replace(
+                "<image>", "<|vision_start|><|image_pad|><|vision_end|>")
             row_dict["multi_modal_data"] = {
                 "image": [
                     process_image(image, self.max_pixels, self.min_pixels) for image in row_dict.pop(self.image_key)
                 ]
             }
-            model_inputs = self.processor(row_dict["multi_modal_data"]["image"], prompt, return_tensors="pt")
+            model_inputs = self.processor(
+                row_dict["multi_modal_data"]["image"], prompt, return_tensors="pt")
             input_ids = model_inputs.pop("input_ids")[0]
             attention_mask = model_inputs.pop("attention_mask")[0]
             row_dict["multi_modal_inputs"] = dict(model_inputs)
@@ -140,10 +148,12 @@ class RLHFDataset(Dataset):
                 attention_mask=attention_mask,
             )  # (3, seq_length)
         else:
-            model_inputs = self.tokenizer([prompt], add_special_tokens=False, return_tensors="pt")
+            model_inputs = self.tokenizer(
+                [prompt], add_special_tokens=False, return_tensors="pt")
             input_ids = model_inputs.pop("input_ids")[0]
             attention_mask = model_inputs.pop("attention_mask")[0]
-            position_ids = torch.clip(attention_mask.cumsum(dim=0) - 1, min=0, max=None)  # (seq_length,)
+            position_ids = torch.clip(attention_mask.cumsum(
+                dim=0) - 1, min=0, max=None)  # (seq_length,)
 
         input_ids, attention_mask, position_ids = VF.postprocess_data(
             input_ids=input_ids,
@@ -157,6 +167,8 @@ class RLHFDataset(Dataset):
         row_dict["input_ids"] = input_ids
         row_dict["attention_mask"] = attention_mask
         row_dict["position_ids"] = position_ids
-        row_dict["raw_prompt_ids"] = self.tokenizer.encode(prompt, add_special_tokens=False)
+        row_dict["raw_prompt_ids"] = self.tokenizer.encode(
+            prompt, add_special_tokens=False)
         row_dict["ground_truth"] = row_dict.pop(self.answer_key)
+        row_dict["context"] = row_dict[self.prompt_key]
         return row_dict
