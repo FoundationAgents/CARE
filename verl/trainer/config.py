@@ -34,6 +34,7 @@ def recursive_post_init(dataclass_obj):
 @dataclass
 class DataConfig:
     train_files: str = ""
+    extra_files: Optional[str] = None  # ✅ 新增字段：用于 curriculum 训练中的第二个数据源（如 MuSiQue）
     val_files: str = ""
     prompt_key: str = "prompt"
     answer_key: str = "answer"

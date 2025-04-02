@@ -38,6 +38,8 @@ from ..single_controller.ray import RayClassWithInitArgs, RayResourcePool, RayWo
 from ..single_controller.ray.base import create_colocated_worker_cls
 from ..utils import torch_functional as VF
 from ..utils.dataset import RLHFDataset, collate_fn
+from ..utils.progressive_dataset import ProgressiveMixDataset
+
 from ..utils.seqlen_balancing import get_seqlen_balanced_partitions, log_seqlen_unbalance
 from ..utils.tracking import Tracking, ValGenerationsLogger
 from ..workers.fsdp_workers import FSDPWorker
@@ -292,18 +294,29 @@ class RayPPOTrainer:
         self._create_dataloader()
 
     def _create_dataloader(self) -> None:
-        self.train_dataset = RLHFDataset(
-            data_path=self.config.data.train_files,
+        # self.train_dataset = RLHFDataset(
+        #     data_path=self.config.data.train_files,
+        #     tokenizer=self.tokenizer,
+        #     processor=self.processor,
+        #     prompt_key=self.config.data.prompt_key,
+        #     answer_key=self.config.data.answer_key,
+        #     image_key=self.config.data.image_key,
+        #     max_prompt_length=self.config.data.max_prompt_length,
+        #     truncation="right",
+        #     system_prompt=self.config.data.system_prompt,
+        #     min_pixels=self.config.data.min_pixels,
+        #     max_pixels=self.config.data.max_pixels,
+        # )
+        self.train_dataset = ProgressiveMixDataset(
+            train_files=self.config.data.train_files,
+            extra_files=self.config.data.extra_files,
             tokenizer=self.tokenizer,
             processor=self.processor,
+            system_prompt=self.config.data.system_prompt,
             prompt_key=self.config.data.prompt_key,
             answer_key=self.config.data.answer_key,
-            image_key=self.config.data.image_key,
             max_prompt_length=self.config.data.max_prompt_length,
-            truncation="right",
-            system_prompt=self.config.data.system_prompt,
-            min_pixels=self.config.data.min_pixels,
-            max_pixels=self.config.data.max_pixels,
+            max_steps=10000,  # or use self.config.trainer.max_steps
         )
         # use sampler for better ckpt resume
         if self.config.data.shuffle:
@@ -578,6 +591,8 @@ class RayPPOTrainer:
         )
         val_metrics: Optional[Dict[str, Any]] = None
         self.global_step = 0
+        # 每一步都更新 Dataset 的全局 step
+        self.train_dataset.set_global_step(self.global_step)
 
         # load checkpoint before doing anything
         self._load_checkpoint()
