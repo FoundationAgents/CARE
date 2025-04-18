@@ -36,6 +36,9 @@ class ProgressiveMixDataset(Dataset):
             if extra_files.endswith(".json") or extra_files.endswith(".jsonl") \
             else load_dataset(extra_files, split="train")
 
+    def post_init(self, max_steps):
+        self.max_steps = max_steps
+
     def set_global_step(self, step: int):
         self.global_step = step
 
@@ -48,13 +51,15 @@ class ProgressiveMixDataset(Dataset):
     def __getitem__(self, idx):
         p = self._get_mix_ratio()
         use_musique = random.random() < p
-        sample = random.choice(self.musique) if use_musique else random.choice(self.drop)
+        sample = random.choice(
+            self.musique) if use_musique else random.choice(self.drop)
 
         prompt = sample.get(self.prompt_key, "")
         answer = sample.get(self.answer_key, "")
 
         # Construct full prompt
-        full_prompt = self.system_prompt + "\n" + prompt if self.system_prompt else prompt
+        full_prompt = self.system_prompt + "\n" + \
+            prompt if self.system_prompt else prompt
 
         # Tokenize inputs
         encoded = self.tokenizer(

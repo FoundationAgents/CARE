@@ -13,7 +13,8 @@ def retrieve_format_reward(predict_str: str) -> float:
         return 0.0
 
     think_content = think_match.group(1)
-    retrieval_matches = re.findall(r"<retrieval>.*?</retrieval>", think_content, re.DOTALL)
+    retrieval_matches = re.findall(
+        r"<retrieval>.*?</retrieval>", think_content, re.DOTALL)
 
     return 1.0 if retrieval_matches else 0.0
 
@@ -27,7 +28,21 @@ def extract_answer(predict_str: str) -> str:
 
 def retrieve_accuracy_reward(predict_str: str, ground_truth: str) -> float:
     answer = extract_answer(predict_str)
-    return 1.0 if answer.lower().strip() == ground_truth.lower().strip() else 0.0
+    # Use F1 score for accuracy instead of exact match
+    if not answer:
+        return 0.0
+    # F1 score calculation
+    answer_tokens = set(answer.split())
+    ground_truth_tokens = set(ground_truth.split())
+    common_tokens = answer_tokens.intersection(ground_truth_tokens)
+    if not common_tokens:
+        return 0.0
+    precision = len(common_tokens) / len(answer_tokens)
+    recall = len(common_tokens) / len(ground_truth_tokens)
+    if precision + recall == 0:
+        return 0.0
+    f1_score = 2 * (precision * recall) / (precision + recall)
+    return f1_score
 
 
 def soft_contains(span: str, context: str, threshold: float = 0.85) -> bool:
