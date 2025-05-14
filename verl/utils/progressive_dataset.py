@@ -16,8 +16,9 @@ class ProgressiveMixDataset(Dataset):
         system_prompt: Optional[str] = None,
         prompt_key: str = "prompt",
         answer_key: str = "answer",
-        max_prompt_length: int = 512,
+        max_prompt_length: int = 2048,
         max_steps: int = 10000,
+        truncation: str = "error",
     ):
         self.tokenizer = tokenizer
         self.processor = processor
@@ -27,6 +28,7 @@ class ProgressiveMixDataset(Dataset):
         self.max_prompt_length = max_prompt_length
         self.max_steps = max_steps
         self.global_step = 0
+        self.truncation = truncation
 
         # Load both datasets
         self.drop = load_dataset("json", data_files=train_files, split="train") \
