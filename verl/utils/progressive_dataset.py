@@ -16,9 +16,9 @@ class ProgressiveMixDataset(Dataset):
         system_prompt: Optional[str] = None,
         prompt_key: str = "prompt",
         answer_key: str = "answer",
-        max_prompt_length: int = 2048,
+        max_prompt_length: int = 4096,
         max_steps: int = 10000,
-        truncation: str = "error",
+        truncation: str = "right",
     ):
         self.tokenizer = tokenizer
         self.processor = processor
