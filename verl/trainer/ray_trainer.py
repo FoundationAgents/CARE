@@ -648,6 +648,7 @@ class RayPPOTrainer:
         for _ in range(self.config.trainer.total_episodes):
             for batch_dict in self.train_dataloader:
                 self.global_step += 1
+                self.train_dataset.set_global_step(self.global_step)
                 if self.global_step > self.training_steps:
                     break
 

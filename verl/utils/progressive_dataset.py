@@ -3,6 +3,7 @@ from torch.utils.data import Dataset
 from datasets import load_dataset
 from typing import Optional
 import torch
+from . import torch_functional as VF
 
 
 class ProgressiveMixDataset(Dataset):
@@ -51,40 +52,39 @@ class ProgressiveMixDataset(Dataset):
     def __getitem__(self, idx):
         p = self._get_mix_ratio()
         use_musique = random.random() < p
-        sample = random.choice(
+        row_dict = random.choice(
             self.musique) if use_musique else random.choice(self.drop)
 
-        prompt = sample.get(self.prompt_key, "")
-        answer = sample.get(self.answer_key, "")
+        messages = [{"role": "user", "content": row_dict[self.prompt_key]}]
+        if self.system_prompt:
+            messages.insert(
+                0, {"role": "system", "content": self.system_prompt})
 
-        # Construct full prompt
-        full_prompt = self.system_prompt + "\n" + \
-            prompt if self.system_prompt else prompt
+        prompt = self.tokenizer.apply_chat_template(
+            messages, add_generation_prompt=True, tokenize=False)
 
-        # Tokenize inputs
-        encoded = self.tokenizer(
-            full_prompt,
-            text_target=answer,
-            truncation=True,
+        model_inputs = self.tokenizer(
+            [prompt], add_special_tokens=False, return_tensors="pt")
+        input_ids = model_inputs.pop("input_ids")[0]
+        attention_mask = model_inputs.pop("attention_mask")[0]
+        position_ids = torch.clip(attention_mask.cumsum(
+            dim=0) - 1, min=0, max=None)  # (seq_length,)
+
+        input_ids, attention_mask, position_ids = VF.postprocess_data(
+            input_ids=input_ids,
+            attention_mask=attention_mask,
+            position_ids=position_ids,
             max_length=self.max_prompt_length,
-            padding="max_length",
-            return_tensors="pt"
+            pad_token_id=self.tokenizer.pad_token_id,
+            left_pad=True,
+            truncation=self.truncation,
         )
 
-        input_ids = encoded["input_ids"].squeeze(0)
-        attention_mask = encoded["attention_mask"].squeeze(0)
-        labels = encoded["labels"].squeeze(0)
-
-        # Compute position_ids manually
-        position_ids = attention_mask.cumsum(dim=-1) - 1
-        position_ids = position_ids.masked_fill(attention_mask == 0, 0)
-
-        return {
-            "input_ids": input_ids,
-            "attention_mask": attention_mask,
-            "labels": labels,
-            "position_ids": position_ids,
-            "raw_prompt_ids": self.tokenizer.encode(full_prompt, add_special_tokens=False),
-            "ground_truth": answer,
-            "context": prompt,
-        }
+        row_dict["input_ids"] = input_ids
+        row_dict["attention_mask"] = attention_mask
+        row_dict["position_ids"] = position_ids
+        row_dict["raw_prompt_ids"] = self.tokenizer.encode(
+            prompt, add_special_tokens=False)
+        row_dict["ground_truth"] = row_dict.pop(self.answer_key)
+        row_dict["context"] = row_dict[self.prompt_key]
+        return row_dict
