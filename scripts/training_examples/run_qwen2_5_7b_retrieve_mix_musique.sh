@@ -16,7 +16,7 @@ export VLLM_USE_V1=0
 # Replace the path with either:
 #   1. Your local model checkpoint directory
 #   2. Or a Hugging Face Hub repo id, e.g. Qwen/Qwen2.5-7B-Instruct
-MODEL_PATH=/mnt/home/LLaMA-Factory/saves/Qwen2.5-7B-Instruct-Ret/full/sft
+MODEL_PATH=Qwen/Qwen2.5-7B-Instruct
 
 # -------------------------------
 # System prompt
