@@ -14,6 +14,7 @@ This work represents a step toward making LLMs more accurate, reliable, and effi
 <p align="center">
   <img src="assets/method.png" width="80%">
 </p>
+
 ---
 
 
@@ -32,7 +33,7 @@ git clone https://github.com/FoundationAgents/CARE
 cd CARE
 pip install -r requirements.txt
 pip install -e .
-
+```
 
 ---
 
