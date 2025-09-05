@@ -1,0 +1,30 @@
+name: care
+channels:
+  - defaults
+  - conda-forge
+  - pytorch
+  - nvidia
+dependencies:
+  - python=3.10
+  - pip
+  - pip:
+      - accelerate
+      - codetiming
+      - datasets
+      - flash-attn>=2.4.3
+      - liger-kernel
+      - mathruler
+      - numpy
+      - omegaconf
+      - pandas
+      - peft
+      - pillow
+      - pyarrow>=15.0.0
+      - pylatexenc
+      - qwen-vl-utils
+      - ray
+      - tensordict
+      - torchdata
+      - transformers>=4.49.0
+      - vllm>=0.7.3
+      - wandb
