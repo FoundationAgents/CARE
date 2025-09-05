@@ -1,157 +1,103 @@
-# EasyR1: An Efficient, Scalable, Multi-Modality RL Training Framework
+# CARE: Improving Context Fidelity via Native Retrieval-Augmented Reasoning
 
-This project is a clean fork of the original [veRL](https://github.com/volcengine/verl) project to support vision language models, we thank all the authors for providing such a high-performance RL training framework.
 
-EasyR1 is efficient and scalable due to the design of **[HybirdEngine](https://arxiv.org/abs/2409.19256)** and the latest release of **[vLLM](https://github.com/vllm-project/vllm)**'s SPMD mode.
 
-## Features
+Large language models (LLMs) often struggle with **context fidelity**, producing inconsistent or hallucinated answers even when relevant information is present.  
+We propose **CARE**, a native retrieval-augmented reasoning framework that integrates in-context evidence directly into the reasoning chain.  
+This work represents a step toward making LLMs more accurate, reliable, and efficient for knowledge-intensive tasks.
+### Method Overview
+<p align="center">
+  <img src="assets/retrieval_results.png" alt="CARE Results" width="85%" style="display:inline-block;"/>
+</p>
 
-- Supported models
-  - Llama3/Qwen2/Qwen2.5 language models
-  - Qwen2/Qwen2.5-VL vision language models
-  - DeepSeek-R1 distill models
+### Method Overview
+<p align="center">
+  <img src="assets/method.png" width="80%">
+</p>
+---
 
-- Supported algorithms
-  - GRPO
-  - Remax
-  - others RL algorithms (comming soon)
 
-- Supported datasets
-  - Any text, vision-text dataset in a [specific format](#custom-dataset).
+## 🔧 Installation
 
-- Supported tricks
-  - Padding-free training
-  - Resuming from checkpoint
-  - Wandb & SwanLab tracking
+Requirements:
+- Python **3.9+**  
+- [requirements.txt](./requirements.txt) includes:
+  - `transformers>=4.51.0`
+  - `flash-attn>=2.4.3`
+  - `vllm>=0.8.3`
 
-## Requirements
-
-### Software Requirements
-
-- Python 3.9+
-- transformers>=4.49.0
-- flash-attn>=2.4.3
-- vllm>=0.7.3
-
-We provide a [Dockerfile](./Dockerfile) to easily build environments.
-
-We recommend using the [pre-built docker image](https://hub.docker.com/r/hiyouga/verl) in EasyR1.
-
+Clone and install:
 ```bash
-docker pull hiyouga/verl:ngc-th2.5.1-cu120-vllm0.7.4-hotfix
-```
-
-### Hardware Requirements
-
-\* *estimated*
-
-| Method                   | Bits |  1.5B  |   3B   |   7B   |
-| ------------------------ | ---- | ------ | ------ | ------ |
-| GRPO Full Fine-Tuning    |  AMP | 2*24GB | 4*40GB | 8*40GB |
-
-> [!NOTE]
-> At least 2 GPUs are needed to run EasyR1.
->
-> We are working hard to reduce the VRAM in RL training, LoRA support will be integrated in next updates.
-
-## Tutorial: Run Qwen2.5-VL GRPO on [Geometry3K](https://huggingface.co/datasets/hiyouga/geometry3k) Dataset in Just 3 Steps
-
-![image](assets/qwen2_5_vl_7b_geo.png)
-
-### Installation
-
-```bash
-git clone https://github.com/hiyouga/EasyR1.git
-cd EasyR1
+git clone https://github.com/FoundationAgents/CARE
+cd CARE
+pip install -r requirements.txt
 pip install -e .
-```
 
-### GRPO Training
 
-```bash
-bash examples/run_qwen2_5_vl_7b_geo.sh
-```
+---
 
-### Merge Checkpoint in Hugging Face Format
+## 📥 Data and Model Download
+
+Use the provided helper script to download Qwen models and datasets (DROP, MuSiQue):
 
 ```bash
-python3 scripts/model_merger.py --local_dir path_to_your_last_actor_checkpoint
+python CARE/scripts/load_script/load_dataset.py
+```
+```bash
+python CARE/scripts/load_script/load_model.py
+```
+This will save all resources under `CARE/datasets/`.
+
+---
+
+## 🚀 Reinforcement Learning
+
+We provide ready-to-run training examples.
+For Qwen2.5-7B with DROP + MuSiQue:
+
+```bash
+bash CARE/scripts/training_examples/run_qwen2_5_7b_retrieve_mix_musique.sh
 ```
 
-> [!TIP]
-> If you encounter issues with connecting to Hugging Face, consider using `export HF_ENDPOINT=https://hf-mirror.com`.
->
-> If you want to use SwanLab logger, consider using `bash examples/run_qwen2_5_vl_7b_geo_swanlab.sh`.
+Edit the script to change:
 
-## Custom Dataset
+* **MODEL\_PATH** → local checkpoint path or Hugging Face repo id.
+* **data.train\_files / data.extra\_files / data.val\_files** → datasets.
+* **SYSTEM\_PROMPT** → reasoning style prompt.
+* **trainer.max\_steps / trainer.n\_gpus\_per\_node** → training setup.
 
-Please refer to the example datasets to prepare your own dataset.
+---
 
-- Text dataset: https://huggingface.co/datasets/hiyouga/math12k
-- Vision-text dataset: https://huggingface.co/datasets/hiyouga/geometry3k
+## 📊 Results
 
-> [!TIP]
-> EasyR1 already supports multi-image dataset.
 
-## How to Understand GRPO in EasyR1
+---
 
-![image](assets/easyr1_grpo.png)
+### Benchmark Comparison
 
-- To learn about the GRPO algorithm, you can refer to [Hugging Face's blog](https://huggingface.co/docs/trl/v0.15.2/en/grpo_trainer).
-- Different from TRL's GRPO trainer, our trainer supports mini-batch update as described in the [original PPO paper](https://arxiv.org/abs/1707.06347).
+| Model            | Method      | MFQA      | HotpotQA  | 2WikiMQA  | MuSiQue   | Average   |
+| ---------------- | ----------- | --------- | --------- | --------- | --------- | --------- |
+| **LLaMA-3.1 8B** | Original    | *45.57*   | *54.64*   | 45.87     | 32.08     | 44.54     |
+|                  | R1-Searcher | 28.44     | 53.71     | *67.10*   | *41.41*   | *47.67*   |
+|                  | **CARE**    | **49.94** | **63.09** | **75.29** | **51.00** | **59.83** |
+| **Qwen2.5 7B**   | Original    | 46.94     | *58.47*   | 46.96     | 30.78     | 45.79     |
+|                  | R1-Searcher | 28.36     | 55.43     | *65.79*   | *47.09*   | *49.17*   |
+|                  | **CARE**    | **48.11** | **63.45** | **70.11** | 45.57     | **56.81** |
+| **Qwen2.5 14B**  | Original    | 47.58     | *61.94*   | *59.05*   | *37.99*   | *51.64*   |
+|                  | CRAG        | **50.89** | 44.74     | 34.68     | 28.17     | 39.62     |
+|                  | **CARE**    | *48.81*   | **67.75** | **78.68** | **51.27** | **61.63** |
 
-## Other Baselines
+---
 
-We also implemented the following two baselines from [R1-V](https://github.com/deep-agent/R1-V) project.
-- [CLEVR-70k-Counting](examples/run_qwen2_5_vl_3b_clevr.sh): Train the Qwen2.5-VL-3B-Instruct model on counting problem.
-- [GeoQA-8k](examples/run_qwen2_5_vl_3b_geoqa8k.sh): Train the Qwen2.5-VL-3B-Instruct model on GeoQA problem.
+### Ablation Study
 
-## Awesome Work using EasyR1
+| Setting      | SFT | RL | Retrieval | Curriculum | MFQA     | HotpotQA   | 2WikiMQA   | MuSiQue   | CofCA     | Average   |
+| ------------ | --- | -- | --------- | ---------- | -------- | -----------| -----------| ----------| ----------| ----------|
+| Baseline     | ✗   | ✗  | ✗         | ✗          | _46.64_  | 58.47      | 46.96      | 30.78     | 58.38     | 48.25     |
+| SFT Only     | ✓   | ✗  | ✗         | ✗          | 42.24    | 47.08      | 61.51      | 33.82     | 59.21     | 48.77     |
+| No Retrieval | ✓   | ✓  | ✗         | ✗          | 37.66    | 62.59      | _70.57_    | 43.85     | 57.26     | 54.39     |
+| No Curriculum| ✓   | ✓  | ✓         | ✗          | 38.33    | **64.10**  | **70.69**  | **47.49** | _60.60_   | _56.24_   |
+| **CARE**     | ✓   | ✓  | ✓         | ✓          | **48.11**| _63.45_    | 70.11      | _45.57_   | **64.56** | **58.36** |
 
-- MMR1: Advancing the Frontiers of Multimodal Reasoning ([repo](https://github.com/LengSicong/MMR1)).
-- Vision-R1: Incentivizing Reasoning Capability in Multimodal Large Language Models ([paper](https://arxiv.org/abs/2503.06749), [repo](https://github.com/Osilly/Vision-R1)).
-
-## TODO
-
-- Support PPO, Reinforce++ and RLOO for VLMs.
-- Support ulysses parallelism for VLMs.
-- Support more VLM architectures.
-
-> [!NOTE]
-> We will not provide scripts for supervised fine-tuning and inference in this project. If you have such requirements, we recommend using [LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory).
-
-### Known bugs
-
-These features are temporarily disabled for now, we plan to fix them one-by-one in the future updates.
-
-- Vision language models are not compatible with ulysses parallelism yet.
-
-## Discussion Group
-
-👋 Join our [WeChat group](assets/wechat.jpg).
-
-## Citation
-
-Core contributors: [Yaowei Zheng](https://github.com/hiyouga), [Junting Lu](https://github.com/AL-377), [Shenzhi Wang](https://github.com/Shenzhi-Wang), [Zhangchi Feng](https://github.com/BUAADreamer), [Dongdong Kuang](https://github.com/Kuangdd01) and Yuwen Xiong
-
-We also thank Guangming Sheng and Chi Zhang for helpful discussions.
-
-```bibtex
-@misc{zheng2025easyr1,
-  title        = {EasyR1: An Efficient, Scalable, Multi-Modality RL Training Framework},
-  author       = {Yaowei Zheng, Junting Lu, Shenzhi Wang, Zhangchi Feng, Dongdong Kuang, Yuwen Xiong},
-  howpublished = {\url{https://github.com/hiyouga/EasyR1}},
-  year         = {2025}
-}
-```
-
-We recommend to also cite the original work.
-
-```bibtex
-@article{sheng2024hybridflow,
-  title   = {HybridFlow: A Flexible and Efficient RLHF Framework},
-  author  = {Guangming Sheng and Chi Zhang and Zilingfeng Ye and Xibin Wu and Wang Zhang and Ru Zhang and Yanghua Peng and Haibin Lin and Chuan Wu},
-  year    = {2024},
-  journal = {arXiv preprint arXiv: 2409.19256}
-}
-```
+📌 *Whether to enable curriculum learning can be controlled in*  
+[`CARE/verl/trainer/config.py`](CARE/verl/trainer/config.py).

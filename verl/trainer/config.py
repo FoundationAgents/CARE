@@ -13,6 +13,12 @@
 # limitations under the License.
 """
 PPO config
+
+This file defines configuration dataclasses for PPO training.
+
+In CARE, we extend the base data config with an additional field
+`extra_files`, which enables curriculum-style training by mixing in
+a second dataset (e.g. MuSiQue) alongside the main training set (e.g. DROP).
 """
 
 import os
@@ -33,24 +39,42 @@ def recursive_post_init(dataclass_obj):
 
 @dataclass
 class DataConfig:
+    # Main training dataset (e.g. DROP)
     train_files: str = ""
-    extra_files: Optional[str] = None  # ✅ 新增字段：用于 curriculum 训练中的第二个数据源（如 MuSiQue）
+
+    # Extra dataset for curriculum training (e.g. MuSiQue in CARE)
+    extra_files: Optional[str] = None
+
+    # Validation dataset
     val_files: str = ""
+
+    # Keys for prompt/answer/image fields in the dataset
     prompt_key: str = "prompt"
     answer_key: str = "answer"
     image_key: str = "images"
+
+    # Sequence length limits
     max_prompt_length: int = 512
     max_response_length: int = 512
+
+    # Batch size for rollouts
     rollout_batch_size: int = 512
+
+    # Optional system prompt injected into all data
     system_prompt: Optional[str] = None
+
+    # General data options
     shuffle: bool = True
     seed: int = 1
+
+    # Image constraints (for multimodal support, not used in CARE release)
     max_pixels: int = 4194304
     min_pixels: int = 262144
 
 
 @dataclass
 class AlgorithmConfig:
+    # Standard PPO/GRPO algorithm parameters
     gamma: float = 1.0
     lam: float = 1.0
     adv_estimator: str = "grpo"
@@ -63,13 +87,20 @@ class AlgorithmConfig:
 
 @dataclass
 class TrainerConfig:
+    # Training run configuration
     total_episodes: int = 10
     max_steps: Optional[int] = None
     project_name: str = "easy_r1"
     experiment_name: str = "demo"
+
+    # Logging options (console + wandb by default)
     logger: Tuple[str] = ("console", "wandb")
+
+    # Hardware setup
     nnodes: int = 1
     n_gpus_per_node: int = 4
+
+    # Validation and checkpointing
     critic_warmup: int = 0
     val_freq: int = -1
     val_before_train: bool = True
@@ -83,17 +114,21 @@ class TrainerConfig:
 
     def post_init(self):
         if self.save_checkpoint_path is None:
-            self.save_checkpoint_path = os.path.join("checkpoints", self.project_name, self.experiment_name)
+            self.save_checkpoint_path = os.path.join(
+                "checkpoints", self.project_name, self.experiment_name
+            )
 
 
 @dataclass
 class PPOConfig:
+    # Config sections: data, worker, algorithm, trainer
     data: DataConfig = field(default_factory=DataConfig)
     worker: WorkerConfig = field(default_factory=WorkerConfig)
     algorithm: AlgorithmConfig = field(default_factory=AlgorithmConfig)
     trainer: TrainerConfig = field(default_factory=TrainerConfig)
 
     def post_init(self):
+        # Synchronize worker rollout lengths with data config
         self.worker.rollout.prompt_length = self.data.max_prompt_length
         self.worker.rollout.response_length = self.data.max_response_length
 
