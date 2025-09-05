@@ -5,7 +5,7 @@
 Large language models (LLMs) often struggle with **context fidelity**, producing inconsistent or hallucinated answers even when relevant information is present.  
 We propose **CARE**, a native retrieval-augmented reasoning framework that integrates in-context evidence directly into the reasoning chain.  
 This work represents a step toward making LLMs more accurate, reliable, and efficient for knowledge-intensive tasks.
-### Method Overview
+### Results Overview
 <p align="center">
   <img src="assets/retrieval_results.png" alt="CARE Results" width="85%" style="display:inline-block;"/>
 </p>
