@@ -13,10 +13,12 @@ import torch.distributed as dist
 import torch.multiprocessing as mp
 
 skip_st = True
+keyword = "CARE"
+
 
 def parse_args(args=None):
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model', type=str, default=None, choices=["llama2-7b-chat-4k", "longchat-v1.5-7b-32k", "xgen-7b-8k", "internlm-7b-8k", "chatglm2-6b", "chatglm2-6b-32k", "chatglm3-6b-32k", "vicuna-v1.5-7b-16k", "Qwen2.5-7B-Instruct", "Qwen2.5-7B-Instruct_st_step330", "Qwen2.5-7B-Instruct_st_step350_v2", "Qwen2.5-7B-Instruct_st_step350_v3", "Qwen2.5-7B-Instruct_st_step350_v4_no_syspmt", "Qwen2.5-7B-Instruct_hqa_sft_st_step", "Qwen2.5-7B-Instruct_hqa_sft_no_st", "Qwen2.5-7B-Instruct_hqa_sft_no_syspmt", "Qwen2.5-7B-Instruct_hqa_sft_epoch10_st_step", "Qwen2.5-1.5B-Instruct", "Qwen2.5-7B-Instruct_hqa_sft_no_st_rl_step275", "Qwen2.5-7B-Instruct_direct_rl_drop_part_hqa_musique_rl_step475_no_st"])
+    parser.add_argument('--model', type=str, default=None, choices=["Qwen2.5-7B-Instruct", "Meta-Llama-3.1-8B-Instruct", "Qwen2.5-7B-CARE", "Llama-3.1-8B-CARE"])
     parser.add_argument('--e', action='store_true', help="Evaluate on LongBench-E")
     return parser.parse_args(args)
 
@@ -25,7 +27,7 @@ def build_chat(tokenizer, prompt, model_name):
     if "chatglm3" in model_name:
         prompt = tokenizer.build_chat_input(prompt)
     elif "Qwen2.5" in model_name:
-        if ("st_step" in model_name or "no_st" in model_name):
+        if (keyword in model_name):
             content = "You are Qwen, created by Alibaba Cloud. You are a helpful assistant. You FIRST think about the reasoning process as an internal monologue and then provide the final answer. The reasoning process MUST BE enclosed within <think> </think> tags. WITHIN the thinking process, make reference to the relevant texts in the prompt that provide critical information to move the reasoning process forward. The referenced texts MUST BE enclosed within <retrieval> </retrieval> tags, and MUST BE placed within the reasoning process only. The final answer MUST BE put at the end of the response after \"Answer:\"."
         else:
             content = "You are Qwen, created by Alibaba Cloud. You are a helpful assistant."
@@ -39,7 +41,7 @@ def build_chat(tokenizer, prompt, model_name):
         ]
         prompt = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
     elif "Llama" in model_name:
-        if ("st_step" in model_name or "no_st" in model_name):
+        if (keyword in model_name):
             content = "You are Llama, created by Meta. You are a helpful assistant. You FIRST think about the reasoning process as an internal monologue and then provide the final answer. The reasoning process MUST BE enclosed within <think> </think> tags. WITHIN the thinking process, make reference to the relevant texts in the prompt that provide critical information to move the reasoning process forward. The referenced texts MUST BE enclosed within <retrieval> </retrieval> tags, and MUST BE placed within the reasoning process only. The final answer MUST BE put at the end of the response after \"Answer:\"."
         else:
             content = "You are Llama, created by Meta. You are a helpful assistant."
@@ -82,7 +84,7 @@ def post_process(response, model_name):
             response = response.removesuffix("<|im_end|>")
         if "<|eot_id|>" in response:
             response = response.removesuffix("<|eot_id|>")
-        if "st_step" in model_name or "no_st" in model_name:
+        if keyword in model_name:
             answer_match = re.search(r"Answer:(.*)", response, re.DOTALL)
             response = answer_match.group(1).strip() if answer_match else response
     return response
@@ -153,8 +155,8 @@ def seed_everything(seed):
 
 def load_model_and_tokenizer(path, model_name, device):
     skip_st = True
-    if "chatglm" in model_name or "internlm" in model_name or "xgen" in model_name or "Qwen2.5" in model_name:
-        if "st_step" in model_name or "no_syspmt" in model_name or "no_retrieval" in model_name:
+    if "chatglm" in model_name or "internlm" in model_name or "Qwen2.5" in model_name or "Llama" in model_name:
+        if keyword in model_name:
             skip_st = False
         tokenizer = AutoTokenizer.from_pretrained(path, trust_remote_code=True)
         model = AutoModelForCausalLM.from_pretrained(path, trust_remote_code=True, torch_dtype=torch.bfloat16).to(device)

@@ -7,7 +7,5 @@
     "chatglm2-6b-32k": "THUDM/chatglm2-6b-32k",
     "vicuna-v1.5-7b-16k": "lmsys/vicuna-7b-v1.5-16k",
     "Qwen2.5-7B-CARE": "Qwen/Qwen2.5-7B-Instruct",
-    "Qwen2.5-7B-Instruct_st_step350_v3": "/xxxx/Qwen2.5-7B-Instruct_st_step350_v3",
-    "Meta-Llama-3.1-8B-Instruct": "/xxxx/Meta-Llama-3.1-8B-Instruct",
-    "Meta-Llama-3.1-8B-Instruct_st_step375": "/xxx/Meta-Llama-3.1-8B-Instruct_st_step375"
+    "Llama-3.1-8B-CARE": ""
 }
