@@ -1,0 +1,8 @@
+datasets
+einops
+fuzzywuzzy
+jieba
+rouge
+torch==2.3.1
+tqdm
+transformers==4.50.0

@@ -17,6 +17,7 @@ This work represents a step toward making LLMs more accurate, reliable, and effi
 <p align="center">
   <img src="assets/method.png" width="80%">
 </p>
+
 <p align="center"><em>Figure 2: A schematic illustration of the training data and process. The upper part shows SFT data generation (fact injection and special tokens), while the lower part shows the SFT training process together with reinforcement learning (RL) using multiple rewards.</em></p>
 
 ---

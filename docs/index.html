@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <!-- Meta tags for social media banners, these should be filled in appropriatly as they are your "business card" -->
+  <!-- Replace the content tag with appropriate information -->
+  <meta name="description"
+    content="We introduce CARE, a novel framework that teaches LLMs to natively retrieve from context and reason with evidence, significantly improving context fidelity and reducing hallucinations.">
+  <meta property="og:title" content="CARE: Improving Context Fidelity via Native Retrieval-Augmented Reasoning" />
+  <meta property="og:description"
+    content="We introduce CARE, a novel framework that teaches LLMs to natively retrieve from context and reason with evidence, significantly improving context fidelity and reducing hallucinations." />
+  <meta property="og:url" content="URL_OF_THE_PROJECT_PAGE" />
+  <!-- Path to banner image, should be in the path listed below. Optimal dimenssions are 1200X630-->
+  <meta property="og:image" content="static/image/care_banner.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+
+
+  <meta name="twitter:title" content="CARE: Improving Context Fidelity via Native Retrieval-Augmented Reasoning">
+  <meta name="twitter:description"
+    content="We introduce CARE, a novel framework that teaches LLMs to natively retrieve from context and reason with evidence, significantly improving context fidelity and reducing hallucinations.">
+  <!-- Path to banner image, should be in the path listed below. Optimal dimenssions are 1200X600-->
+  <meta name="twitter:image" content="static/images/care_twitter_banner.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <!-- Keywords for your paper to be indexed by-->
+  <meta name="keywords"
+    content="Retrieval-Augmented Generation, RAG, Context Fidelity, Large Language Models, LLM, Reinforcement Learning, Reasoning, Hallucination">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+  <title>CARE: Improving Context Fidelity via Native Retrieval-Augmented Reasoning</title>
+  <!-- <link rel="icon" type="image/x-icon" href="static/images/favicon.ico"> -->
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+
+  <link rel="stylesheet" href="static/css/bulma.min.css">
+  <link rel="stylesheet" href="static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="static/css/fontawesome.all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="static/css/index.css">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://documentcloud.adobe.com/view-sdk/main.js"></script>
+  <script defer src="static/js/fontawesome.all.min.js"></script>
+  <script src="static/js/bulma-carousel.min.js"></script>
+  <script src="static/js/bulma-slider.min.js"></script>
+  <script src="static/js/index.js"></script>
+
+  <style>
+    .table.is-compact td,
+    .table.is-compact th {
+      font-size: 0.9em;
+      padding: 0.2em 0.65em;
+    }
+    .section-subtitle {
+      margin-top: 2.0rem;
+      margin-bottom: 1.25rem !important; 
+    }
+  </style>
+
+</head>
+
+<body>
+
+
+  <section class="hero">
+    <div class="hero-body">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered">
+          <div class="column has-text-centered">
+            <h1 class="title is-1 publication-title">Improving Context Fidelity via Native Retrieval-Augmented Reasoning
+            </h1>
+            <div class="is-size-5 publication-authors">
+              <span class="author-block">Suyuchen Wang,</span>
+              <span class="author-block">Jinlin Wang,</span>
+              <span class="author-block">Xinyu Wang,</span>
+              <span class="author-block">Shiqi Li,</span>
+              <span class="author-block">Xiangru Tang,</span>
+              <span class="author-block">Sirui Hong,</span>
+              <span class="author-block">Xiao-Wen Chang</span>
+            </div>
+            <div class="is-size-5 publication-authors">
+              <span class="author-block">Chenglin Wu,</span>
+              <span class="author-block">Bang Liu</span>
+            </div>
+
+            <div class="is-size-5 publication-authors">
+              <span class="author-block">University of Montreal and Mila, MetaGPT, McGill University, Yale University<br><strong>EMNLP 2025</strong></span>
+            </div>
+
+            <div class="column has-text-centered">
+              <div class="publication-links">
+                <!-- Arxiv PDF link -->
+                <span class="link-block">
+                  <a href="" target="_blank" class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                    </span>
+                    <span>Paper</span>
+                  </a>
+                </span>
+
+                <!-- ArXiv abstract Link -->
+                <span class="link-block">
+                  <a href="" target="_blank" class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <i class="ai ai-arxiv"></i>
+                    </span>
+                    <span>arXiv</span>
+                  </a>
+                </span>
+
+                <!-- Github link -->
+                <span class="link-block">
+                  <a href="https://github.com/FoundationAgents/CARE" target="_blank" class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <i class="fab fa-github"></i>
+                    </span>
+                    <span>Code</span>
+                  </a>
+                </span>
+
+                <!-- Dataset link -->
+                <span class="link-block">
+                  <a href="https://huggingface.co/datasets/sheryc/DROP_processed" target="_blank" class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <i class="fas fa-database"></i>
+                    </span>
+                    <span>Dataset</span>
+                  </a>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+<!-- Teaser -->
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <h2 class="subtitle has-text-centered">
+        Large Language Models often struggle with <strong>context fidelity</strong>, producing answers that contradict
+        the provided information—a problem known as context hallucination. To address this, we introduce <strong>CARE
+          (Context-Aware Retrieval-Enhanced reasoning)</strong>, a framework that teaches LLMs to dynamically identify
+        and integrate evidence from the input context directly into their reasoning process.
+      </h2>
+
+      <div class="has-text-centered">
+        <img src="static/images/Figure1.jpg" style="width: 100%; max-width: 400px;"
+          alt="Figure 1: Comparison showing how CARE integrates in-context facts into its reasoning chain, improving context fidelity over direct generation and standard reasoning methods." />
+      </div>
+
+      <h2 class="subtitle has-text-centered is-size-6">
+        <b>Figure 1:</b> Unlike standard approaches that may ignore or misinterpret context, CARE explicitly retrieves
+        relevant text snippets (highlighted) and weaves them into its thought process, leading to a factually grounded
+        and reasonable answer.
+      </h2>
+    </div>
+  </div>
+</section>
+<!-- End teaser -->
+
+  <!-- Paper abstract -->
+  <section class="section hero is-light">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Abstract</h2>
+          <div class="content has-text-justified">
+            <p>
+              Large language models (LLMs) often struggle with context fidelity, producing inconsistent answers when
+              responding to questions based on provided information. Existing approaches either rely on expensive
+              supervised fine-tuning to generate evidence post-answer or train models to perform web searches without
+              necessarily improving utilization of the given context. We propose CARE, a novel native
+              retrieval-augmented reasoning framework that teaches LLMs to explicitly integrate in-context evidence
+              within their reasoning process with the model's own retrieval capabilities. Our method requires minimal
+              labeled evidence data while significantly enhancing both retrieval accuracy and answer generation
+              performance through strategically retrieved in-context tokens in the reasoning chain. Extensive
+              experiments on multiple real-world and counterfactual QA benchmarks demonstrate that our approach
+              substantially outperforms supervised fine-tuning, traditional retrieval-augmented generation methods, and
+              external retrieval solutions. This work represents a fundamental advancement in making LLMs more accurate,
+              reliable, and efficient for knowledge-intensive tasks.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- End paper abstract -->
+
+
+  <!-- Method Section -->
+  <section class="section">
+    <div class="container is-max-desktop">
+      <h2 class="title is-3 has-text-centered">Our Approach: Native Retrieval-Augmented Reasoning</h2>
+      <div class="content has-text-justified">
+        <p>
+          Conventional Retrieval-Augmented Generation (RAG) is powerful, but often feels like a patch. It bolts on external tools
+          like vector databases, creating a pipeline that adds complexity, latency, and a critical point of failure. More importantly, it
+          frequently underutilizes the rich information already present in the input context. Our key idea is to empower the LLM to
+          perform this retrieval <strong>natively</strong>, using its inherent language understanding to identify and
+          extract salient facts directly from the provided text.
+        </p>
+        <p>
+          CARE achieves this through a two-phase training process designed to be data-efficient and highly effective:
+        </p>
+        <div class="has-text-centered">
+          <img src="static/images/Figure2.jpg"
+            alt="Figure 2: The training pipeline for CARE, showing SFT data generation and the subsequent RL phase."
+            style="width: 100%; max-width: 1000px; margin: auto;" />
+          <p class="is-size-6 has-text-centered"><b>Figure 2:</b> The CARE training pipeline. Top: We generate SFT data
+            by injecting ground-truth facts into reasoning chains. Bottom: The model is first trained in the SFT phase
+            and then refined in the RL phase using multiple rewards and a curriculum learning strategy.</p>
+        </div>
+        <br>
+        <h4 class="title is-4">Phase 1: Supervised Fine-Tuning (SFT)</h4>
+          <p>
+            To kickstart the learning process and solve the "cold-start" problem for reinforcement learning, we first
+            familiarize the model with the target output format. We generate a high-quality dataset by taking existing QA
+            pairs with annotated supporting facts (like HotpotQA) and programmatically injecting these facts into a
+            chain-of-thought reasoning process. We wrap the injected evidence with special tokens (<code>&lt;RETRIEVAL&gt;</code>
+            and <code>&lt;/RETRIEVAL&gt;</code>). This phase teaches the model the <em>structure</em> of evidence-based reasoning.
+          </p>
+
+        <h4 class="title is-4">Phase 2: Reinforcement Learning (RL) with Curriculum</h4>
+        <p>
+          While SFT teaches the format, RL teaches the <em>skill</em> of self-retrieval. In this phase, the model learns
+          to identify and retrieve relevant evidence on its own, without ground-truth labels. We use Group Relative
+          Policy Optimization (GRPO) with a custom, multi-faceted reward function that encourages:
+        </p>
+        <ul>
+          <li><strong>Answer Accuracy (R<sub>acc</sub>):</strong> The generated answer must be correct.</li>
+          <li><strong>Format Consistency (R<sub>fmt</sub>):</strong> The reasoning must follow the desired <code>&lt;THINK&gt;</code> and
+              <code>&lt;RETRIEVAL&gt;</code> structure.</li>
+          <li><strong>Retrieval Reward (R<sub>ret</sub>):</strong> The model is rewarded for using the <code>&lt;RETRIEVAL&gt;</code>
+              tokens and ensuring the enclosed text actually exists in the original context.</li>
+        </ul>
+        <p>
+          Crucially, we employ a <strong>curriculum learning</strong> strategy. The model starts training on simpler,
+          short-context QA datasets (e.g., DROP) and gradually transitions to more complex, long-context, multi-hop
+          datasets (e.g., MS MARCO). This structured progression allows the model to build robust retrieval capabilities
+          without catastrophic forgetting.
+        </p>
+      </div>
+    </div>
+  </section>
+  <!-- End Method Section -->
+
+  <!-- Experiments and Results Section -->
+  <section class="section hero is-light">
+    <div class="container is-max-desktop">
+      <h2 class="title is-3 has-text-centered">Experiments and Results</h2>
+      <div class="content">
+
+        <h4 class="title is-4 section-subtitle">Performance on Real-World QA</h4>
+        <p>
+          To rigorously test our approach, we benchmarked CARE against strong baselines across a suite of demanding real-world,
+          multi-hop QA tasks, including the original LLMs and other RAG methods. As shown in Table 1, CARE consistently
+          achieves state-of-the-art performance across all tested models (Llama-3.1 8B, Qwen2.5 7B, and Qwen2.5 14B).
+          Notably, with Llama-3.1 8B, CARE achieves a <strong>+15.29%</strong> average F1 improvement over the original model,
+          with massive gains on complex datasets like 2WikiMQA (+29.42%) and MuSiQue (+18.92%).
+        </p>
+        
+        <!-- Table 1 -->
+        <div class="container is-max-desktop">
+          <!-- The Table Wrapper for responsiveness -->
+          <div style="overflow-x: auto;">
+            <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth is-compact">
+              <thead>
+                <tr>
+                  <th>Model</th>
+                  <th>Method</th>
+                  <th>MFQA</th>
+                  <th>HotpotQA</th>
+                  <th>2WikiMQA</th>
+                  <th>MuSiQue</th>
+                  <th>Average</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Llama-3.1 8B Results -->
+                <tr>
+                  <td rowspan="5" style="vertical-align: middle;">Llama-3.1 8B</td>
+                  <td>Original</td>
+                  <td><u>45.57</u></td>
+                  <td><u>54.64</u></td>
+                  <td>45.87</td>
+                  <td>32.08</td>
+                  <td>44.54</td>
+                </tr>
+                <tr>
+                  <td>ReSearch</td>
+                  <td>/</td>
+                  <td>/</td>
+                  <td>/</td>
+                  <td>/</td>
+                  <td>/</td>
+                </tr>
+                <tr>
+                  <td>R1-Searcher</td>
+                  <td>28.44</td>
+                  <td>53.71</td>
+                  <td><u>67.10</u></td>
+                  <td><u>41.41</u></td>
+                  <td><u>47.67</u></td>
+                </tr>
+                <tr>
+                  <td>CRAG</td>
+                  <td>44.04</td>
+                  <td>37.88</td>
+                  <td>25.95</td>
+                  <td>24.10</td>
+                  <td>32.99</td>
+                </tr>
+                <tr>
+                  <td><span style="font-size: 1.1em; font-weight: 600;">CARE</span></td>
+                  <td><strong>49.94</strong></td>
+                  <td><strong>63.09</strong></td>
+                  <td><strong>75.29</strong></td>
+                  <td><strong>51.00</strong></td>
+                  <td><strong>59.83</strong></td>
+                </tr>
+
+                <!-- Qwen2.5 7B Results -->
+                <tr>
+                  <td rowspan="5" style="vertical-align: middle;">Qwen2.5 7B</td>
+                  <td>Original</td>
+                  <td>46.94</td>
+                  <td><u>58.47</u></td>
+                  <td>46.96</td>
+                  <td>30.78</td>
+                  <td>45.79</td>
+                </tr>
+                <tr>
+                  <td>ReSearch</td>
+                  <td>32.45</td>
+                  <td>54.24</td>
+                  <td>55.78</td>
+                  <td><strong>47.61</strong></td>
+                  <td>47.52</td>
+                </tr>
+                <tr>
+                  <td>R1-Searcher</td>
+                  <td>28.36</td>
+                  <td>55.43</td>
+                  <td><u>65.79</u></td>
+                  <td><u>47.09</u></td>
+                  <td><u>49.17</u></td>
+                </tr>
+                <tr>
+                  <td>CRAG</td>
+                  <td><u>47.90</u></td>
+                  <td>43.97</td>
+                  <td>33.00</td>
+                  <td>28.44</td>
+                  <td>38.33</td>
+                </tr>
+                <tr>
+                  <td><span style="font-size: 1.1em; font-weight: 600;">CARE</span></td>
+                  <td><strong>48.11</strong></td>
+                  <td><strong>63.45</strong></td>
+                  <td><strong>70.11</strong></td>
+                  <td>45.57</td>
+                  <td><strong>56.81</strong></td>
+                </tr>
+
+                <!-- Qwen2.5 14B Results -->
+                <tr>
+                  <td rowspan="5" style="vertical-align: middle;">Qwen2.5 14B</td>
+                  <td>Original</td>
+                  <td>47.58</td>
+                  <td><u>61.94</u></td>
+                  <td><u>59.05</u></td>
+                  <td><u>37.99</u></td>
+                  <td><u>51.64</u></td>
+                </tr>
+                <tr>
+                  <td>ReSearch</td>
+                  <td>/</td>
+                  <td>/</td>
+                  <td>/</td>
+                  <td>/</td>
+                  <td>/</td>
+                </tr>
+                <tr>
+                  <td>R1-Searcher</td>
+                  <td>/</td>
+                  <td>/</td>
+                  <td>/</td>
+                  <td>/</td>
+                  <td>/</td>
+                </tr>
+                <tr>
+                  <td>CRAG</td>
+                  <td><strong>50.89</strong></td>
+                  <td>44.74</td>
+                  <td>34.68</td>
+                  <td>28.17</td>
+                  <td>39.62</td>
+                </tr>
+                <tr>
+                  <td><span style="font-size: 1.1em; font-weight: 600;">CARE</span></td>
+                  <td><u>48.81</u></td>
+                  <td><strong>67.75</strong></td>
+                  <td><strong>78.68</strong></td>
+                  <td><strong>51.27</strong></td>
+                  <td><strong>61.63</strong></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- The New Caption - Moved below the table and styled like a figure caption -->
+          <p class="has-text-centered is-size-6" style="padding-top: 10px;">
+            <b>Table 1:</b> Evaluation on the real-world QA datasets. Best and second-best results are in <strong>bold</strong>
+            and <u>underline</u>.
+          </p>
+        </div>
+        
+        <h4 class="title is-4 section-subtitle">Robustness to Counterfactual Information</h4>
+        <p>A key test of context fidelity is whether a model can ignore its own pre-trained knowledge when the context
+          presents conflicting (counterfactual) information. We tested this on the CofCA benchmark. Table 2 shows that
+          while traditional online search methods often degrade performance by retrieving conflicting external
+          knowledge, CARE excels. It demonstrates superior context fidelity, with gains as high as
+          <strong>+13.69%</strong> on Llama-3.1 8B, proving its ability to ground its reasoning firmly in the provided
+          text.</p>
+        <!-- Table 2 -->
+        <div class="container is-max-desktop" style="max-width: 500px; margin: auto;">
+          <div style="overflow-x: auto;">
+            <table class="table is-bordered is-striped is-hoverable is-fullwidth is-compact">
+              <thead>
+                <tr>
+                  <th>Model</th>
+                  <th>Method</th>
+                  <th>CofCA (F1)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Llama-3.1 8B Results -->
+                <tr>
+                  <td rowspan="3" style="vertical-align: middle;">Llama-3.1 8B</td>
+                  <td>Original</td>
+                  <td><u>48.14</u></td>
+                </tr>
+                <tr>
+                  <td>R1-Searcher</td>
+                  <td>45.25</td>
+                </tr>
+                <tr>
+                  <td><span style="font-size: 1.1em; font-weight: 600;">CARE</span></td>
+                  <td><strong>61.83</strong></td>
+                </tr>
+                <!-- Qwen2.5 7B Results -->
+                <tr>
+                  <td rowspan="5" style="vertical-align: middle;">Qwen2.5 7B</td>
+                  <td>Original</td>
+                  <td><u>58.38</u></td>
+                </tr>
+                <tr>
+                  <td>ReSearch</td>
+                  <td>47.32</td>
+                </tr>
+                <tr>
+                  <td>R1-Searcher</td>
+                  <td>43.61</td>
+                </tr>
+                <tr>
+                  <td>CRAG</td>
+                  <td>56.01</td>
+                </tr>
+                <tr>
+                  <td><span style="font-size: 1.1em; font-weight: 600;">CARE</span></td>
+                  <td><strong>64.56</strong></td>
+                </tr>
+                <!-- Qwen2.5 14B Results -->
+                <tr>
+                  <td rowspan="3" style="vertical-align: middle;">Qwen2.5 14B</td>
+                  <td>Original</td>
+                  <td><u>64.40</u></td>
+                </tr>
+                <tr>
+                  <td>CRAG</td>
+                  <td>51.99</td>
+                </tr>
+                <tr>
+                  <td><span style="font-size: 1.1em; font-weight: 600;">CARE</span></td>
+                  <td><strong>67.75</strong></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <!-- The Caption -->
+          <p class="has-text-centered is-size-6" style="padding-top: 10px;">
+            <b>Table 2:</b> Evaluation on the counterfactual QA task. Best and second-best results are in <strong>bold</strong>
+            and <u>underline</u>.
+          </p>
+        </div>
+
+        <h4 class="title is-4 section-subtitle">Ablation Studies</h4>
+        <p>What makes CARE so effective? To dissect our framework and understand the contribution of each component, we conducted a
+          series of ablation studies on Qwen2.5 7B. The results in Table 3 demonstrate that each part of CARE is crucial for optimal performance. 
+          While SFT alone offers only marginal benefits, adding Reinforcement Learning (`No Ret.`) provides a substantial boost.
+          Incorporating our retrieval reward (`No Cur.`) and the full curriculum learning strategy (`CARE`) further improves
+          performance and generalization, highlighting the synergistic effect of our complete method.</p>
+        
+        <!-- Table 3 -->
+        <div class="container is-max-desktop">
+          <div style="overflow-x: auto;">
+            <table class="table is-bordered is-striped is-hoverable is-fullwidth is-compact">
+              <thead>
+                <tr>
+                  <th>Settings</th>
+                  <th>SFT</th>
+                  <th>RL</th>
+                  <th>Ret.</th>
+                  <th>Cur.</th>
+                  <th>MFQA</th>
+                  <th>HotpotQA</th>
+                  <th>2WikiMQA</th>
+                  <th>MuSiQue</th>
+                  <th>CofCA</th>
+                  <th>Average</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Baseline</td>
+                  <td class="has-text-centered"><strong>✗</strong></td>
+                  <td class="has-text-centered"><strong>✗</strong></td>
+                  <td class="has-text-centered"><strong>✗</strong></td>
+                  <td class="has-text-centered"><strong>✗</strong></td>
+                  <td><u>46.64</u></td>
+                  <td>58.47</td>
+                  <td>46.96</td>
+                  <td>30.78</td>
+                  <td>58.38</td>
+                  <td>48.25</td>
+                </tr>
+                <tr>
+                  <td>SFT Only</td>
+                  <td class="has-text-centered"><strong>✓</strong></td>
+                  <td class="has-text-centered"><strong>✗</strong></td>
+                  <td class="has-text-centered"><strong>✗</strong></td>
+                  <td class="has-text-centered"><strong>✗</strong></td>
+                  <td>42.24</td>
+                  <td>47.08</td>
+                  <td>61.51</td>
+                  <td>33.82</td>
+                  <td>59.21</td>
+                  <td>48.77</td>
+                </tr>
+                <tr>
+                  <td>No Ret.</td>
+                  <td class="has-text-centered"><strong>✓</strong></td>
+                  <td class="has-text-centered"><strong>✓</strong></td>
+                  <td class="has-text-centered"><strong>✗</strong></td>
+                  <td class="has-text-centered"><strong>✗</strong></td>
+                  <td>37.66</td>
+                  <td>62.59</td>
+                  <td><u>70.57</u></td>
+                  <td>43.85</td>
+                  <td>57.26</td>
+                  <td>54.39</td>
+                </tr>
+                <tr>
+                  <td>No Cur.</td>
+                  <td class="has-text-centered"><strong>✓</strong></td>
+                  <td class="has-text-centered"><strong>✓</strong></td>
+                  <td class="has-text-centered"><strong>✓</strong></td>
+                  <td class="has-text-centered"><strong>✗</strong></td>
+                  <td>38.33</td>
+                  <td><strong>64.10</strong></td>
+                  <td><strong>70.69</strong></td>
+                  <td><strong>47.49</strong></td>
+                  <td><u>60.60</u></td>
+                  <td><u>56.24</u></td>
+                </tr>
+                <tr>
+                  <td><span style="font-size: 1.1em; font-weight: 600;">CARE</span></td>
+                  <td class="has-text-centered"><strong>✓</strong></td>
+                  <td class="has-text-centered"><strong>✓</strong></td>
+                  <td class="has-text-centered"><strong>✓</strong></td>
+                  <td class="has-text-centered"><strong>✓</strong></td>
+                  <td><strong>48.11</strong></td>
+                  <td><u>63.45</u></td>
+                  <td>70.11</td>
+                  <td><u>45.57</u></td>
+                  <td><strong>64.56</strong></td>
+                  <td><strong>58.36</strong></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <!-- The Caption -->
+          <p class="has-text-centered is-size-6" style="padding-top: 10px;">
+            <b>Table 3:</b> Ablation studies on the QA tasks based on Qwen2.5 7B. "Ret." stands for retrieval reward, and "Cur."
+            for curriculum learning.
+          </p>
+        </div>
+        <!-- END: ADD THIS NEW SECTION FOR TABLE 3 -->
+
+        <h4 class="title is-4 section-subtitle">Evidence Retrieval Evaluation</h4>
+        <p>Does CARE actually retrieve better evidence? To measure this directly, we evaluated the quality of the
+          retrieved text snippets on the LongBench HotpotQA benchmark using BLEU and ROUGE-L scores. Figure 3 clearly
+          shows that across all model scales, CARE consistently achieves the highest scores, confirming that our
+          framework effectively enhances the model's ability to extract relevant, high-quality evidence to support its
+          reasoning.</p>
+        <!-- Figure 3 -->
+        <div class="has-text-centered">
+          <img src="static/images/Figure3.png"
+            alt="Figure 3: Comparison of evidence retrieval performance using BLEU and ROUGE-L metrics."
+            style="width: 100%; max-width: 1000px;" />
+          <p class="has-text-centered is-size-6" style="padding-top: 10px;">
+            <b>Figure 3:</b> Evidence Retrieval Evaluation. CARE consistently achieves the highest BLEU and ROUGE-L scores across
+            all models, indicating superior evidence extraction quality.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- End Experiments and Results Section -->
+
+  <section class="section">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Conclusion</h2>
+          <div class="content has-text-justified">
+            <p>
+              In this work, we introduced CARE, a native retrieval-augmented reasoning framework designed to address the
+              critical challenge of context fidelity in Large Language Models. By teaching models to dynamically identify
+              and integrate evidence from the provided context, CARE significantly reduces hallucinations and improves
+              answer accuracy without relying on complex external retrieval systems. Our two-phase training strategy,
+              combining data-efficient Supervised Fine-Tuning with a curriculum-based Reinforcement Learning approach,
+              proves to be highly effective across a range of benchmarks. The comprehensive results demonstrate that CARE
+              not only outperforms strong baselines but also exhibits robust reasoning even in challenging counterfactual
+              scenarios. This research represents a significant step toward building more reliable, trustworthy, and
+              efficient LLMs that can faithfully ground their reasoning in the information they are given.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!--BibTex citation -->
+  <section class="section" id="BibTeX">
+    <div class="container is-max-desktop content">
+      <h2 class="title">BibTeX</h2>
+      <pre><code>@inproceedings{wang2025improving,
+        title     = {Improving Context Fidelity via Native Retrieval-Augmented Reasoning},
+        author    = {Suyuchen Wang and Jinlin Wang and Xinyu Wang and Shiqi Li and 
+                    Xiangru Tang and Sirui Hong and Xiao-Wen Chang and Chenglin Wu and 
+                    Bang Liu},
+        booktitle = {The 2025 Conference on Empirical Methods in Natural Language Processing},
+        year      = {2025},
+        url       = {https://openreview.net/forum?id=24BhNX3LBK}
+      }</code></pre>
+    </div>
+  </section>
+  <!--End BibTex citation -->
+
+
+  <footer class="footer">
+    <div class="container">
+      <div class="columns is-centered">
+        <div class="column is-8">
+          <div class="content">
+
+            <p>
+              This page was built using the <a href="https://github.com/eliahuhorwitz/Academic-project-page-template"
+                target="_blank">Academic Project Page Template</a> which was adopted from the <a
+                href="https://nerfies.github.io" target="_blank">Nerfies</a> project page.
+              You are free to borrow the source code of this website, we just ask that you link back to this page in the
+              footer. <br> This website is licensed under a <a rel="license"
+                href="http://creativecommons.org/licenses/by-sa/4.0/" target="_blank">Creative
+                Commons Attribution-ShareAlike 4.0 International License</a>.
+            </p>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</body>
+
+</html>
