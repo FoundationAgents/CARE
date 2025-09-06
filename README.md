@@ -1,5 +1,11 @@
 # CARE: Improving Context Fidelity via Native Retrieval-Augmented Reasoning
 
+<div align="center">
+<p>
+        🌐 <a href="https://foundationagents.github.io/CARE">Project</a>&nbsp&nbsp | &nbsp&nbsp 📑 <a href="">Paper</a> &nbsp&nbsp | &nbsp&nbsp 🤗 <a href="">Hugging Face Models</a>&nbsp&nbsp 
+        | &nbsp&nbsp 🤗 <a href="">Hugging Face Datasets</a>
+</p>
+</div>
 
 
 Large language models (LLMs) often struggle with **context fidelity**, producing inconsistent or hallucinated answers even when relevant information is present.  
