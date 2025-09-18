@@ -2,8 +2,8 @@
 
 <div align="center">
 <p>
-        🌐 <a href="https://foundationagents.github.io/CARE">Project</a>&nbsp&nbsp | &nbsp&nbsp 📑 <a href="">Paper</a> &nbsp&nbsp | &nbsp&nbsp 🤗 <a href="">Hugging Face Models</a>&nbsp&nbsp 
-        | &nbsp&nbsp 🤗 <a href="">Hugging Face Datasets</a>
+        🌐 <a href="https://foundationagents.github.io/CARE">Project</a>&nbsp&nbsp | &nbsp&nbsp 📑 <a href="https://arxiv.org/abs/2509.13683">Paper</a> &nbsp&nbsp | &nbsp&nbsp 🤗 <a href="https://huggingface.co/collections/sheryc/care-checkpoints-emnlp-2025-68be35dbd732816c9d98f258">Hugging Face Models</a>&nbsp&nbsp 
+        | &nbsp&nbsp 🤗 <a href="https://huggingface.co/collections/sheryc/care-datasets-emnlp-2025-68be35242afab58f4bed7d97">Hugging Face Datasets</a>
 </p>
 </div>
 
