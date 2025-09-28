@@ -8,7 +8,8 @@
     "chatglm3-6b-32k": 31500,
     "vicuna-v1.5-7b-16k": 15500,
     "Qwen2.5-7B-Instruct": 32768,
-    "Qwen2.5-7B-CARE": 32768,
+    "Qwen2.5-7B-Instruct-CARE": 32768,
+    "Qwen2.5-14B-Instruct-CARE": 32768,
     "Meta-Llama-3.1-8B-Instruct": 32768,
-    "Llama-3.1-8B-CARE": 32768
+    "Llama-3.1-8B-Instruct-CARE": 32768
 }
