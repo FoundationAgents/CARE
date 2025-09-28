@@ -18,7 +18,7 @@ keyword = "CARE"
 
 def parse_args(args=None):
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model', type=str, default=None, choices=["Qwen2.5-7B-Instruct", "Meta-Llama-3.1-8B-Instruct", "Qwen2.5-7B-CARE", "Llama-3.1-8B-CARE"])
+    parser.add_argument('--model', type=str, default=None, choices=["Qwen2.5-7B-Instruct", "Meta-Llama-3.1-8B-Instruct", "Qwen2.5-7B-Instruct-CARE", "Qwen2.5-14B-Instruct-CARE", "Llama-3.1-8B-Instruct-CARE"])
     parser.add_argument('--e', action='store_true', help="Evaluate on LongBench-E")
     return parser.parse_args(args)
 
