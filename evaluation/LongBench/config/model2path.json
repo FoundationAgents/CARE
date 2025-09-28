@@ -6,6 +6,7 @@
     "chatglm2-6b": "THUDM/chatglm2-6b",
     "chatglm2-6b-32k": "THUDM/chatglm2-6b-32k",
     "vicuna-v1.5-7b-16k": "lmsys/vicuna-7b-v1.5-16k",
-    "Qwen2.5-7B-CARE": "Qwen/Qwen2.5-7B-Instruct",
-    "Llama-3.1-8B-CARE": ""
+    "Qwen2.5-7B-Instruct-CARE": "sheryc/Qwen2.5-7B-Instruct-CARE",
+    "Qwen2.5-14B-Instruct-CARE": "sheryc/Qwen2.5-14B-Instruct-CARE",
+    "Llama-3.1-8B-Instruct-CARE": "sheryc/Llama-3.1-8B-Instruct-CARE"
 }
